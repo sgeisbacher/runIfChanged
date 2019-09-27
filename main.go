@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"syscall"
 )
 
 var dependenciesStr string
@@ -37,8 +38,17 @@ func main() {
 	cmd := exec.Command(command[0], command[1:]...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	cmd.Run()
-	cmd.Wait()
+	err = cmd.Run()
+	if err != nil {
+		if exiterr, ok := err.(*exec.ExitError); ok {
+			if status, ok := exiterr.Sys().(syscall.WaitStatus); ok {
+				os.Exit(status.ExitStatus())
+				return
+			}
+		} else {
+			log.Fatalf("run error: %v", err)
+		}
+	}
 }
 func assertInput(deps []string, prevCommit string, command []string) {
 	if deps == nil || len(deps) == 0 {
