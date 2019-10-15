@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -12,15 +13,22 @@ import (
 var dependenciesStr string
 var fromCommit string
 var verbose bool
+var version bool
 
 func init() {
 	flag.StringVar(&dependenciesStr, "d", "", "directories (comma-separated) to check for change")
 	flag.StringVar(&fromCommit, "c", "", "commit-hash or branch or tag to start checking from")
 	flag.BoolVar(&verbose, "v", false, "increase verbosity for debugging")
+	flag.BoolVar(&version, "version", false, "show version")
 }
 
 func main() {
 	flag.Parse()
+
+	if version {
+		fmt.Println("v0.10.1")
+		return
+	}
 
 	command := flag.Args()
 	dependencies := strings.Split(dependenciesStr, ",")
